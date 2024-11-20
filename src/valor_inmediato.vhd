@@ -17,5 +17,5 @@ begin
             (31 downto 13=>instr(31))&instr(31 downto 25)&instr(11 downto 7)&"0" when "010", -- Tipo B
             instr(21 downto 12)&(11 downto 0='0'>) when "011", --Tipo U
             (31 downto 21=>instr(31))&instr(31 downto 12)&'0' when "100",
-            
+
 end arch;
