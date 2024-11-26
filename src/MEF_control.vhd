@@ -3,9 +3,10 @@ use IEEE.std_logic_1164.all;
 
 entity MEF_control is
   port (
-    A : in  std_logic;
-    B : in  std_logic;
-    Y : out std_logic
+    reset, hab_pc, clk : std_logic;
+    w_pc, branch, sel_dir, w_mem, w_instr, w_reg : out std_logic;
+    sal_inmediato : out std_logic_vector(2 downto 0);
+    modo_alu, sel_op1, sel_op2, sel_Y : out std_logic_vector(1 downto 0)
   );
 end MEF_control;
 
