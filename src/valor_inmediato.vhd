@@ -10,6 +10,7 @@ entity valor_inmediato is
 end valor_inmediato;
 
 architecture arch of valor_inmediato is
+  begin
   U1 : with sel select
   inmediato<=(31 downto 11=>instr(31)&instr(30 downto 20)) when "001", -- Tipo I
               (31 downto 11=>instr(31))&instr(30 downto 25)&instr(11 downto 7) when "010", -- Tipo s

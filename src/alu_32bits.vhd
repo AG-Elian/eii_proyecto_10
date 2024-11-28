@@ -70,13 +70,13 @@ architecture structural of alu_32bits is
       Y : out std_logic_vector(31 downto 0)
     );
     end component;
-  signal y_and, y_or, y_xor, y_suma_resta, y_desp_der, y_desp_izq : std_logic_vector(31 downto 0);
-  signal y_sel : std_logic_vector(4 downto 0);
-  signal resta, menor_sin_signo, desp_consigno, Z : std_logic;
+  signal y_and, y_or, y_xor, y_suma_resta, y_desp_der, y_desp_izq, y_sel, y_menor : std_logic_vector(31 downto 0);
+  constant relleno : std_logic_vector(30 downto 0) := (others => '0') ;
+  signal resta, menor_sin_signo, desp_consigno, y_menorb : std_logic;
 begin
   U1 : fn_suma_resta port map(A=>A, B=>B, sel=>resta, Y=>y_suma_resta);
 
-  U2 : fn_menor_que port map(A=>A, B=>B, sin_signo=>menor_sin_signo, Y=>y_menor);
+  U2 : fn_menor_que port map(A=>A, B=>B, sin_signo=>menor_sin_signo, Y=>y_menorb); -- Debe corregirse la la salida
 
   U3 : desplaza_izq port map(A=>A, B=>B(4 downto 0), Y=>y_desp_izq);
   
@@ -87,6 +87,8 @@ begin
   U6 : and_32 port map( A=>A, B=>B, Y=>y_and);
 
   U7 : or_32 port map( A=>A, B=>B, Y=>y_or);
+
+  y_menor <= relleno(30 downto 0)&y_menorb;
 
   with sel select
   y_sel <= y_suma_resta when "0000"|"0001",
@@ -99,6 +101,6 @@ begin
   U8 : fn_cero32bits port map(A=>y_sel, Y=>Z);
   resta <= sel(0);
   menor_sin_signo <= sel(1);
-  desp_con_signo <= sel(0);
+  desp_consigno <= sel(0);
 
 end structural;
