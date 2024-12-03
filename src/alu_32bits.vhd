@@ -71,7 +71,7 @@ architecture structural of alu_32bits is
     );
     end component;
   signal y_and, y_or, y_xor, y_suma_resta, y_desp_der, y_desp_izq, y_sel, y_menor : std_logic_vector(31 downto 0);
-  constant relleno : std_logic_vector(30 downto 0) := (others => '0') ;
+  --constant relleno : std_logic_vector(30 downto 0) := (others => '0') ;
   signal resta, menor_sin_signo, desp_consigno, y_menorb : std_logic;
 begin
   U1 : fn_suma_resta port map(A=>A, B=>B, sel=>resta, Y=>y_suma_resta);
@@ -88,7 +88,7 @@ begin
 
   U7 : or_32 port map( A=>A, B=>B, Y=>y_or);
 
-  y_menor <= relleno(30 downto 0)&y_menorb;
+  y_menor <= (31 downto 1=>'0')&y_menorb;
 
   with sel select
   y_sel <= y_suma_resta when "0000"|"0001",
@@ -102,5 +102,5 @@ begin
   resta <= sel(0);
   menor_sin_signo <= sel(1);
   desp_consigno <= sel(0);
-
+  Y<=y_sel;
 end structural;
