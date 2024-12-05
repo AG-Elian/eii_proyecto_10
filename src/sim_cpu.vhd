@@ -9,22 +9,63 @@ end sim_cpu;
 architecture sim of sim_cpu is
   component cpu is
     port (
-      A : in  std_logic;
-      B : in  std_logic;
-      Y : out std_logic
+      reset, clk: in std_logic;
+      hab_w : out std_logic;
+      lectura : in std_logic_vector(31 downto 0);
+      dir : out std_logic_vector(31 downto 2);
+      escritura : out std_logic_vector(31 downto 0);
     );
-  end component; -- cpu
-  signal entradas : std_logic_vector (1 downto 0);
-  signal salida : std_logic;
+  end component; -- fin del componente cpu
+  component ram_256x32 is
+    generic(
+    constant archivo : string:=""
+    );
+    port (
+      clk_w : in  std_logic; -- reloj de escritura
+      dir_w : in  std_logic_vector(7 downto 0); -- direccion de escritura
+      hab_w : in std_logic; -- habilitacion de escritura
+      dat_w : in std_logic(31 downto 0); -- datos de escritura
+      clk_r : in std_logic; -- reloj de lectura
+      dir_r : in std_logic_vector(7 downto 0); -- direccion de lectura
+      hab_r : in std_logic; -- habilitacion de lectura
+      dat_r : out std_logic_vector(31 downto 0) -- datos de lectura
+      );
+      end component;
+  signal clk, reset, hab_w : std_logic;
+  signal lectura, escritura : std_logic_vector(31 downto 0);
+  signal dir : std_logic_vector(31 downto 2);
 begin
   -- Dispositivo bajo prueba
-  dut : cpu port map (A=>entradas(1),B=>entradas(0),Y=>salida);
+  dut : cpu port map (reset=>reset,clk=>clk,lectura=>lectura,escritura=>escritura,hab_w=>hab_w);
+  memoria : ram_256x32 generic map(archivo=>) port map (
+    clk_w=>clk,clk_r=>clk,
+    dir_w=>dir(9 downto 2),
+    dir_r=>dir(9 downto 2),
+    hab_w=>hab_w,
+    hab_r=>'1',
+    dat_w=>escritura,
+    dat_r=>lectura
+  );--direccion de archivo
 
-  excitaciones: process
+  reloj : process
   begin
-    for i in 0 to (2**entradas'length)-1 loop
-      entradas <= std_logic_vector(to_unsigned(i,entradas'length));
-      wait for 1 ns;
+    clk<='0';
+    wait for 1 ns;
+    clk<='1';
+    wait for 1 ns;
+    end process;
+  
+  estimulo : process
+  procedure espera_ciclo is
+    wait until rising_edge_clk;
+    wait 1 ns;
+    end procedure;
+  begin
+    reset<='1';
+    espera_ciclo;
+    reset<='0';
+    for i in 0 to 9999 loop
+      espera_ciclo;
     end loop;
     wait for 1 ns; -- Espera extra antes de salir
     finish;

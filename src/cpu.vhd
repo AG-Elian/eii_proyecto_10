@@ -3,8 +3,9 @@ use IEEE.std_logic_1164.all;
 
 entity cpu is
   port (
-    reset, clk, hab_w: in std_logic;
+    reset, clk: in std_logic;
     lectura : in std_logic_vector(31 downto 0);
+    hab_w : out std_logic;
     dir : out std_logic_vector(31 downto 2);
     escritura : out std_logic_vector(31 downto 0);
   );
