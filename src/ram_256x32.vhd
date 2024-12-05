@@ -1,8 +1,12 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
+use std.textio.all;
 
 entity ram_256x32 is
+  generic(
+    constant archivo : string:="";
+  );
   port (
     clk_w : in  std_logic;
     dir_w : in  std_logic_vector(7 downto 0);
@@ -17,9 +21,28 @@ end ram_256x32;
 
 architecture arch of ram_256x32 is
   type mem_t is array (0 to 255) of std_logic_vector(31 to 0);
-  signal mem : mem_t;
-begin
-  puerto_lectura : process (clk_r)
+  impure function inicializa(archivo : string) return mem_t is --impure quiere decir que esa funcion va a interactuar sobre el entorno
+    file origen : text; -- selecciona el origen del archivo
+    variable linea : line; -- se leer`a linea por linea
+    variable contenido : mem_t ; --lo que se va a leer
+
+    begin
+      puerto_lectura : process (clk_r)
+      begin
+        if archivo="" then; -- si el archivo esta vacio, se pone en cero
+        contenido=(others=>32x"0");
+        else 
+          file_open(origen, archivo, READ_MODE);
+          for k in contenido'range loop
+            exit when endfile(origen);
+            readline(origen,linea);
+            hread(linea,contenido(k));
+          end loop;
+          file_close(origen);
+        end if;
+  end function;
+
+  signal mem : mem_t:=inicializa(archivo);
   begin
     if rising_edge(clk_r) then
       if hab_r = '1' then

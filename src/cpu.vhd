@@ -14,13 +14,17 @@ architecture arch of cpu is
   --Aqui se declaran los compoenentes
   component alu_32bits is
     port(
-      A,B : in std_logic_vector;
+      A, B : in  std_logic_vector(31 downto 0);
+      sel  : in  std_logic_vector(3 downto 0);
+      Z    : out std_logic;
+      Y    : out std_logic_vector(31 downto 0)
     );
     end component;
 
   component branch_condition is
     port(
-      A,B : in std_logic_vector;
+      funct3 : in  std_logic_vector(2 downto 0);
+      Z_branch : out  std_logic
     );
     end component;
 
