@@ -5,7 +5,7 @@ use std.textio.all;
 
 entity ram_256x32 is
   generic(
-    constant archivo : string:="";
+    constant archivo : string:=""
   );
   port (
     clk_w : in  std_logic;
@@ -30,7 +30,7 @@ architecture arch of ram_256x32 is
       puerto_lectura : process (clk_r)
       begin
         if archivo="" then; -- si el archivo esta vacio, se pone en cero
-        contenido=(others=>32x"0");
+        contenido:=(others=>32x"0");
         else 
           file_open(origen, archivo, READ_MODE);
           for k in contenido'range loop

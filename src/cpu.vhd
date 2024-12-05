@@ -30,7 +30,10 @@ architecture arch of cpu is
 
   component reg_32x32 is
     port(
-      A,B : in std_logic_vector;
+      clk, hab_w : in  std_logic;
+      dir_w, dir_r1, dir_r2 : in  std_logic_vector(4 downto 0); -- direcciones de lectura/escritura
+      dat_w : in std_logic_vector(31 downto 0); -- datos de escritura
+      dat_r1, dat_r2 : out std_logic_vector(31 downto 0) --datos de lectura
     );
     end component;
   
