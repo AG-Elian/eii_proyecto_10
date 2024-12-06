@@ -26,12 +26,30 @@ begin
   excitaciones: process
   variable aleatorio : aleatorio_t;
   begin
-    for i in 0 to 10 loop
+      sel <= 4x'0';
       entradaA  <= aleatorio.genera_vector(32);
       entradaB  <= aleatorio.genera_vector(32);
-      sel <= aleatorio.genera_vector(4);
       wait for 1 ns;
-    end loop;
+
+      sel <= 4x'1';
+      entradaA  <= aleatorio.genera_vector(32);
+      entradaB  <= aleatorio.genera_vector(32);
+      wait for 1 ns;
+
+      sel <= 4x"0";
+      entradaA  <= aleatorio.genera_vector(32);
+      entradaB  <= aleatorio.genera_vector(32);
+      wait for 1 ns;
+
+      sel <= 4x"0";
+      entradaA  <= aleatorio.genera_vector(32);
+      entradaB  <= aleatorio.genera_vector(32);
+      wait for 1 ns;
+
+      sel <= 4x"0";
+      entradaA  <= aleatorio.genera_vector(32);
+      entradaB  <= aleatorio.genera_vector(32);
+      wait for 1 ns;
     wait for 1 ns; -- Espera extra antes de salir
     finish;
   end process; -- excitaciones
