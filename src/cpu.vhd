@@ -48,18 +48,25 @@ architecture arch of cpu is
     end component;
   component registro32 is
     port(
-      A,B : in std_logic_vector;
+      clk, hab, reset: in  std_logic;
+      D : in std_logic_vector(31 downto 0); -- datos de entrada
+      Q : out std_logic_vector(31 downto 0) --datos de salida
     );
     end component;
 
   component control_alu is
     port(
-        A,B : in std_logic_vector;
+      funct3   : in std_logic_vector(2 downto 0);
+      funct7_5 : in std_logic;
+      modo     : in std_logic_vector(1 downto 0);
+      fn_alu   : out std_logic_vector(3 downto 0)
       );
     end component;
   component valor_inmediato is
     port(
-        A,B : in std_logic_vector;
+      instr : in  std_logic_vector(31 downto 7);
+      sel : in  std_logic_vector(2 downto 0);
+      inmediato : out std_logic_vector(31 downto 0)
       );
     end component;
       --Señales de la MEF
@@ -81,11 +88,14 @@ begin
   R_pc : registro32 port map(clk=>clk, reset=>reset, hab=>hab_pc, D=>Y, Q=>pc);
   dir <= Y when sel_dir else PC;
   escritura <= rs2;
-  R_pc_instr : registro32 port map(clk<=clk, rst<='0',hab=>);
-  U_control : MEF_control port map();
-  U_registro : registro_32x32 port map();
-  valor_inmediato : valor_inmediato port map(instr=>, inmediato=>inmediato,sel=>sel_inmediato);
-  U_sel_alu : control_alu port map();
+  R_pc_instr : registro32 port map(clk<=clk, reset<='0',hab=>esc_instr, D=>pc,Q=>pc_instr); --registro de instruccion de pc
+  R_instr : registro32 port map(clk=>clk,reset=>'0',hab=>esc_instr,D=>lectura,Q=>instr); -- registro de instruccion
+  U_control : MEF_control port map(clk=>clk,reset=>reset,w_pc=>esc_pc,branch=>branch,sel_dir=>sel_dir,w_mem=>esc_mem,w_instr=>esc_instr,w_reg=>esc_reg,
+  modo_alu=>modo_alu,sel_op1=>sel_op1,sel_op2=>sel_op2,sel_Y=>sel_y);
+  U_registro : registro_32x32 port map(clk=>clk,dir_r1=>instr(19 downto 15),
+                dir_r2=>instr(24 downto 20),dir_w=>instr(11 downto 0),hab_w=>esc_reg,dat_w=>Y,dat_r1=>rs1,dat_r2=>rs2);
+  valor_inmediato : valor_inmediato port map(instr=>instr(31 downto 7), inmediato=>inmediato,sel=>sel_inmediato);
+  U_sel_alu : control_alu port map(funct3=>, funct5_7=>,modo=>,fn_alu=>);
   U_Z_branch : branch_condition port map(funct3=>instr(14 downto 12), Z_branch=>Z_branch);
   mux_op1 : ;
   -- fin del multiplexor de seleccion 1
