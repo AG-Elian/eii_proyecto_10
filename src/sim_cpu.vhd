@@ -13,7 +13,7 @@ architecture sim of sim_cpu is
       hab_w : out std_logic;
       lectura : in std_logic_vector(31 downto 0);
       dir : out std_logic_vector(31 downto 2);
-      escritura : out std_logic_vector(31 downto 0);
+      escritura : out std_logic_vector(31 downto 0)
     );
   end component; -- fin del componente cpu
   component ram_256x32 is
@@ -37,7 +37,7 @@ architecture sim of sim_cpu is
 begin
   -- Dispositivo bajo prueba
   dut : cpu port map (reset=>reset,clk=>clk,lectura=>lectura,escritura=>escritura,hab_w=>hab_w);
-  memoria : ram_256x32 generic map(archivo=>) port map (
+  memoria : ram_256x32 generic map(archivo=>"C:/Facet/Tercer_anio/Anio2024/Electronica_II/Proyecto_10/eii_proyecto_10/src/origen.mem") port map (
     clk_w=>clk,clk_r=>clk,
     dir_w=>dir(9 downto 2),
     dir_r=>dir(9 downto 2),
@@ -57,8 +57,9 @@ begin
   
   estimulo : process
   procedure espera_ciclo is
+    begin
     wait until rising_edge_clk;
-    wait 1 ns;
+    wait for 0.5 ns;
     end procedure;
   begin
     reset<='1';
@@ -67,7 +68,6 @@ begin
     for i in 0 to 9999 loop
       espera_ciclo;
     end loop;
-    wait for 1 ns; -- Espera extra antes de salir
     finish;
   end process; -- excitaciones
 end sim;

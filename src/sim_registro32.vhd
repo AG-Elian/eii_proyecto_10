@@ -40,6 +40,8 @@ begin
           entrada <= aleatorio.genera_vector(32);
           hab <=aleatorio.genera_bit;
           sig_ciclo;
+          end loop;
+          wait for 1 ns;
           finish;
       end process; -- excitaciones
   
