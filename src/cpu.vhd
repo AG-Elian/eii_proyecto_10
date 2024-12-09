@@ -7,7 +7,7 @@ entity cpu is
     lectura : in std_logic_vector(31 downto 0);
     hab_w : out std_logic;
     dir : out std_logic_vector(31 downto 2);
-    escritura : out std_logic_vector(31 downto 0);
+    escritura : out std_logic_vector(31 downto 0)
   );
 end cpu;
 
@@ -95,17 +95,28 @@ begin
   U_registro : registro_32x32 port map(clk=>clk,dir_r1=>instr(19 downto 15),
                 dir_r2=>instr(24 downto 20),dir_w=>instr(11 downto 0),hab_w=>esc_reg,dat_w=>Y,dat_r1=>rs1,dat_r2=>rs2);
   valor_inmediato : valor_inmediato port map(instr=>instr(31 downto 7), inmediato=>inmediato,sel=>sel_inmediato);
-  U_sel_alu : control_alu port map(funct3=>, funct5_7=>,modo=>,fn_alu=>);
+  U_sel_alu : control_alu port map(funct3=>instr(14 downto 0), funct5_7=>inst(30),modo=>modo_alu,fn_alu=>sel_alu);
   U_Z_branch : branch_condition port map(funct3=>instr(14 downto 12), Z_branch=>Z_branch);
-  mux_op1 : ;
+  mux_op1 : with sel select 
+            op1<=pc   when "00",
+                 pc_instr  when "01",
+                 rs1       when others;
   -- fin del multiplexor de seleccion 1
-  mux_op2 : ;
+  mux_op2 : with sel select 
+            op2<=rs2        when "00",
+                 inmediato  when "01",
+                 32x"4"     when others;
   -- fin del multiplexor de seleccion 2
   ALU : alu_32bits port map(A=>op1,B=>op2,sel=>sel_alu,Y=>Y_alu,Z=>Z);
-  U_retardo : registro32 port map();
+  U_retardo : registro32 port map(
+    clk=>clk,
+    hab=>'1',
+    reset=>'0',
+    D=>Y_alu, Q=>Y_alu_r
+  );
   mux_sel_Y : with sel select
-  Y<= dat_lectura when '00',
-      y_alu,
-      y_alu_r;
+  Y<= lectura when "00",
+      y_alu       when "01",
+      y_alu_r     when others;--10
       --fin del multiplexor de seleccion de salida Y
 end arch;
