@@ -19,50 +19,36 @@ entity ram_256x32 is
   );
 end ram_256x32;
 
-architecture arch of ram_256x32 is
-  type mem_t is array (0 to 255) of std_logic_vector(31 to 0);
-  impure function inicializa(archivo : string) return mem_t is --impure quiere decir que esa funcion va a interactuar sobre el entorno
-    file origen : text; -- selecciona el origen del archivo
-    variable linea : line; -- se leera linea por linea
-    variable contenido : mem_t ; --lo que se va a leer
-
-    begin
-      puerto_lectura : process (clk_r)
-      begin
-        if archivo="" then; -- si el archivo esta vacio, se pone en cero
-        contenido:=(others=>32x"0");
-        else 
-          file_open(origen, archivo, READ_MODE);
-          for k in contenido'range loop
-            exit when endfile(origen);
-            readline(origen,linea);
-            hread(linea,contenido(k));
-          end loop;
-          file_close(origen);
-        end if;
-    return contenido;
-  end function;
-
-  signal mem : mem_t:=inicializa(archivo);
+architecture Behavioral of ram_256x32 is
+  -- Declaración de la memoria: 256 posiciones de 32 bits
+  type ram_type is array (255 downto 0) of std_logic_vector(31 downto 0);
+  signal ram : ram_type := (others => (others => '0')); -- Inicialización de memoria
+  signal read_data : std_logic_vector(31 downto 0); -- Dato leído temporal
 
   begin
-    if rising_edge(clk_r) then
-      if hab_r = '1' then
-        dat_r <= mem(to_integer(unsigned(dat_r)));
+  -- Proceso de escritura
+    process(clk_w)
+    begin
+      if rising_edge(clk_w) then
+        if hab_w = '1' then
+          ram(to_integer(unsigned(dir_w))) <= dat_w; -- Escribe el dato en la dirección especificada
         end if;
       end if;
     end process;
-  puerto_escritura : process(clk_w)
-  variable dir, pos : integer;
-  begin
-    if rising_edge(clk_w) then
-      dir := to_integer(unsigned(dir_w));
-      for k in 0 to 3 loop
-        pos := k*8;
-        if hab_w(k)='1' then
-          mem(dir)(pos + 7 down to pos)<=dat_w(pos+7 downto pos);
-          end if;
-      end loop;
-    end if;
+
+    -- Proceso de lectura
+    process(clk_r)
+    begin
+      if rising_edge(clk_r) then
+        if hab_r = '1' then
+          read_data <= ram(to_integer(unsigned(dir_r))); -- Lee el dato de la dirección especificada
+        else
+          read_data <= (others => '0'); -- Si no está habilitada, devuelve ceros
+        end if;
+      end if;
     end process;
-end arch;
+
+    -- Asignación del dato leído al puerto de salida
+    dat_r <= read_data;
+
+end Behavioral;
