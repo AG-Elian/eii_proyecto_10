@@ -1,6 +1,7 @@
 library IEEE;
 use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
+
 entity MEF_control is
   port (
     reset, hab_pc, clk : std_logic;
@@ -38,11 +39,13 @@ begin
       when CARGA =>
       estado_sig<=DECODIFICA;
       when DECODIFICA =>
-      estado_sig=>EJECUTA;
+      estado_sig<=EJECUTA;
       when EJECUTA =>
-      estado_sig=>ALMACENA
+      estado_sig<=ALMACENA;
       when ALMACENA =>
-      estado_sig<=ESPERA when hab_pc else CARGA;
+      estado_sig <= ESPERA when hab_pc='1' else CARGA;
+      when others =>
+      estado_sig<=ESPERA; -- Valor por defecto para estados no especificados
       end case;
     end process;
 
@@ -91,7 +94,7 @@ begin
             sel_op1<="10";    --
             sel_op2<="01";    --
             modo_alu<="01";    --
-            when 7x"23";
+            when 7x"23" =>
             --mem(rs1+inmediato)*<=rs2
             sel_inmediato<="010";    --
             sel_op1<="10";    --
