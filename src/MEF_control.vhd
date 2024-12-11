@@ -75,8 +75,8 @@ begin
         sel_op1<="00";    --Selecciono PC
         sel_op2<="10";    --Selecciono la constante 4
         modo_alu<="00";   --ALU en modo suma
-        sel_op1<="";    --
-        sel_op1<="";    --
+        sel_Y<="10";    --
+        w_pc<='1';    --
         when DECODIFICA =>
         --carga rs1 y rs2
         when EJECUTA=>
@@ -137,13 +137,25 @@ begin
           when 7x"03" =>
           --RD*<=lectura
           sel_Y<="00";    --
-          w_reg<='1';    --
-          when 7x"13"|7x"33" =>
+          w_reg<='1';    
+          --Inicio de bloque que genera conflicto
+          --when 7x"13"|7x"33" =>
           --RD*<=Y_alu_r
-          sel_Y<="00";    --
-          w_reg<='1';    --
+          --sel_Y<="10";    --
+          --w_reg<='1';    
+          --Fin del bloque que genera conflicto
+
+          --Inicio de solución al conflicto
           when 7x"13" =>
           --dat_lectura*<=mem(PC)
+          sel_Y<="10";    --
+          w_reg<='1'; 
+          when 7x"33" =>
+          --RD*<=Y_alu_r
+          sel_Y<="10";    --
+          w_reg<='1'; 
+          -- Fin de solucion al conflicto
+          
           when 7x"63" =>
           --Z<= <comp>(rs1,rs2)?=0
           sel_op1<="10";    --

@@ -54,7 +54,7 @@ begin
       begin
         for k in 0 to 20 loop
           instruccion <= aleatorio.genera_vector(32);
-          hab_pc <= leatorio.genera_bit;
+          hab_pc <= aleatorio.genera_bit;
           reset <= aleatorio.genera_bit;
           sig_ciclo;
           end loop;
