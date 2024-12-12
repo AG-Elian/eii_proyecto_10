@@ -19,7 +19,7 @@ architecture sim of sim_MEF_control is
   end component; -- MEF_control
   --Señales de entrada
   signal reset, hab_pc, clk : std_logic;
-  signal instruccion : std_logic_vector(31 downto 0);
+  signal instruccion : std_logic_vector(6 downto 0);
   --Señales de salida
   signal w_pc, branch, sel_dir, w_mem, w_instr, w_reg : std_logic;
   signal sel_inmediato : std_logic_vector(2 downto 0);
@@ -29,7 +29,7 @@ begin
   dut : MEF_control port map (
     --Señales de entrada
     reset=>reset,hab_pc=>hab_pc,clk=>clk,
-    op=>instruccion(6 downto 0),
+    op=>instruccion,
     --Señales de salida
     w_pc=>w_pc,branch=>branch,sel_dir=>sel_dir,w_mem=>w_mem,w_instr=>w_instr,w_reg=>w_reg,
     sel_inmediato=>sel_inmediato,
@@ -52,13 +52,57 @@ begin
       wait for 0.5 ns;
       end procedure;
       begin
-        for k in 0 to 20 loop
-          instruccion <= aleatorio.genera_vector(32);
-          hab_pc <= aleatorio.genera_bit;
-          reset <= aleatorio.genera_bit;
-          sig_ciclo;
-          end loop;
-          wait for 1 ns;
-          finish;
+        instruccion<=7x"00";
+        reset<='1';
+        sig_ciclo;
+        --Caso 1: lectura*<=mem(rs1+inmediato)
+        instruccion<=7x"03";
+        hab_pc <= '1';
+        reset  <= '0';
+        sig_ciclo;
+        --Fin de caso
+        --Caso 2: lectura*<=mem(rs1+inmediato)
+        instruccion<=7x"13";
+        hab_pc <= aleatorio.genera_bit;
+        reset  <= '0';
+        sig_ciclo;
+        --Fin de caso
+
+        --Caso 3: lectura*<=mem(rs1+inmediato)
+        instruccion<=7x"23";
+        hab_pc <= aleatorio.genera_bit;
+        reset  <= '0';
+        sig_ciclo;
+        --Fin de caso
+
+        --Caso 4: lectura*<=mem(rs1+inmediato)
+        instruccion<=7x"33";
+        hab_pc <= aleatorio.genera_bit;
+        reset  <= '0';
+        sig_ciclo;
+        --Fin de caso
+
+        --Caso 5: lectura*<=mem(rs1+inmediato)
+        instruccion<=7x"63";
+        hab_pc <= aleatorio.genera_bit;
+        reset  <= '0';
+        sig_ciclo;
+        --Fin de caso
+
+        --Caso 6: lectura*<=mem(rs1+inmediato)
+        instruccion<=7x"67";
+        hab_pc <= aleatorio.genera_bit;
+        reset  <= '0';
+        sig_ciclo;
+        --Fin de caso
+
+        --Caso 7: lectura*<=mem(rs1+inmediato)
+        instruccion<=7x"6F";
+        hab_pc <= aleatorio.genera_bit;
+        reset  <= '0';
+        sig_ciclo;
+        --Fin de caso
+        finish;
+
       end process; -- excitaciones
 end sim;
