@@ -41,9 +41,10 @@ architecture arch of cpu is
   
   component MEF_control is
     port(
-      reset, hab_pc, clk : std_logic;
+      reset, hab_pc, clk : in std_logic;
+      op : in std_logic_vector(6 downto 0);
       w_pc, branch, sel_dir, w_mem, w_instr, w_reg : out std_logic;
-      sal_inmediato : out std_logic_vector(2 downto 0);
+      sel_inmediato : out std_logic_vector(2 downto 0);
       modo_alu, sel_op1, sel_op2, sel_Y : out std_logic_vector(1 downto 0)
     );
     end component;
@@ -59,7 +60,7 @@ architecture arch of cpu is
     port(
       funct3   : in std_logic_vector(2 downto 0);
       funct7_5 : in std_logic;
-      modo     : in std_logic_vector(1 downto 0);
+      modo_alu     : in std_logic_vector(1 downto 0);
       fn_alu   : out std_logic_vector(3 downto 0)
       );
     end component;
@@ -71,7 +72,7 @@ architecture arch of cpu is
       );
     end component;
       --Señales de la MEF
-  signal esc_pc, branch, sel_dir, esc_mem, esc_instr, esc_reg : std_logic;
+  signal esc_pc, branch, sel_dir, esc_instr, esc_reg : std_logic;
   signal sel_inmediato : std_logic_vector(2 downto 0);
   signal modo_alu, sel_op1, sel_op2, sel_y : std_logic_vector(1 downto 0);
   --Salidas de registros
@@ -85,25 +86,27 @@ architecture arch of cpu is
   signal Y_alu, Y, op1, op2 : std_logic_vector(31 downto 0);
 
 begin
-  hab_pc<=esc_pc or (branch and (Z xor Z_branch));
+  hab_pc<=esc_pc or (branch and (Z xnor Z_branch));
   R_pc : registro32 port map(clk=>clk, reset=>reset, hab=>hab_pc, D=>Y, Q=>pc);
-  dir <= Y when sel_dir else PC;
+  dir <= Y(31 downto 2) when sel_dir else PC(31 downto 2);
   escritura <= rs2;
-  R_pc_instr : registro32 port map(clk<=clk, reset<='0',hab=>esc_instr, D=>pc,Q=>pc_instr); --registro de instruccion de pc
+  R_pc_instr : registro32 port map(clk=>clk, reset=>'0',hab=>esc_instr, D=>pc,Q=>pc_instr); --registro de instruccion de pc
   R_instr : registro32 port map(clk=>clk,reset=>'0',hab=>esc_instr,D=>lectura,Q=>instr); -- registro de instruccion
-  U_control : MEF_control port map(clk=>clk,reset=>reset,w_pc=>esc_pc,branch=>branch,sel_dir=>sel_dir,w_mem=>esc_mem,w_instr=>esc_instr,w_reg=>esc_reg,
-  modo_alu=>modo_alu,sel_op1=>sel_op1,sel_op2=>sel_op2,sel_Y=>sel_y);
-  U_registro : registro_32x32 port map(clk=>clk,dir_r1=>instr(19 downto 15),
-                dir_r2=>instr(24 downto 20),dir_w=>instr(11 downto 0),hab_w=>esc_reg,dat_w=>Y,dat_r1=>rs1,dat_r2=>rs2);
-  valor_inmediato : valor_inmediato port map(instr=>instr(31 downto 7), inmediato=>inmediato,sel=>sel_inmediato);
-  U_sel_alu : control_alu port map(funct3=>instr(14 downto 0), funct5_7=>inst(30),modo=>modo_alu,fn_alu=>sel_alu);
+  
+  U_control : MEF_control port map(clk=>clk,reset=>reset,w_pc=>esc_pc,branch=>branch,sel_dir=>sel_dir,w_mem=>hab_w,w_instr=>esc_instr,w_reg=>esc_reg,
+  sel_inmediato=>sel_inmediato,modo_alu=>modo_alu,sel_op1=>sel_op1,sel_op2=>sel_op2,sel_Y=>sel_y, hab_pc=>hab_pc,op=>instr(6 downto 0));
+
+  U_registro : reg_32x32 port map(clk=>clk,dir_r1=>instr(19 downto 15),
+                dir_r2=>instr(24 downto 20),dir_w=>instr(11 downto 7),hab_w=>esc_reg,dat_w=>Y,dat_r1=>rs1,dat_r2=>rs2);
+  U_valor_inmediato : valor_inmediato port map(instr=>instr(31 downto 7), inmediato=>inmediato,sel=>sel_inmediato);
+  U_sel_alu : control_alu port map(funct3=>instr(14 downto 12), funct7_5=>instr(30),modo_alu=>modo_alu,fn_alu=>sel_alu);
   U_Z_branch : branch_condition port map(funct3=>instr(14 downto 12), Z_branch=>Z_branch);
-  mux_op1 : with sel select 
+  mux_op1 : with sel_op1 select 
             op1<=pc   when "00",
                  pc_instr  when "01",
                  rs1       when others;
   -- fin del multiplexor de seleccion 1
-  mux_op2 : with sel select 
+  mux_op2 : with sel_op2 select 
             op2<=rs2        when "00",
                  inmediato  when "01",
                  32x"4"     when others;
@@ -115,7 +118,7 @@ begin
     reset=>'0',
     D=>Y_alu, Q=>Y_alu_r
   );
-  mux_sel_Y : with sel select
+  mux_sel_Y : with sel_y select
   Y<= lectura when "00",
       y_alu       when "01",
       y_alu_r     when others;--10

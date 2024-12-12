@@ -63,6 +63,7 @@ begin
       sel_op1<="00";        --Selecciona PC por defecto
       sel_op2<="00";        --Selecciona por defecto a rs2
       sel_Y<="01";          --Salida Y directa de ALU
+      sel_dir<='0';
       
       case(estado) is
         when ESPERA =>
@@ -75,7 +76,7 @@ begin
         sel_op1<="00";    --Selecciono PC
         sel_op2<="10";    --Selecciono la constante 4
         modo_alu<="00";   --ALU en modo suma
-        sel_Y<="10";    --
+        sel_Y<="01";    --
         w_pc<='1';    --
         when DECODIFICA =>
         --carga rs1 y rs2
@@ -111,7 +112,7 @@ begin
             modo_alu<="10";    --
             when 7x"63" =>
             --Y_alu_r*<=pc_instr+inmediato
-            sel_inmediato<="001";    --
+            sel_inmediato<="011";    --
             sel_op1<="01";    --
             sel_op2<="01";    --
             when 7x"67" =>
