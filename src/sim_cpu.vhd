@@ -37,7 +37,7 @@ architecture sim of sim_cpu is
 begin
   -- Dispositivo bajo prueba
   dut : cpu port map (reset=>reset,clk=>clk,lectura=>lectura,escritura=>escritura,hab_w=>hab_w,dir=>dir);
-  memoria : ram_256x32 generic map(archivo=>"C:/Facet/Tercer_anio/Anio2024/Electronica_II/Proyecto_10/eii_proyecto_10/src/origen.mem") port map (
+  memoria : ram_256x32 generic map(archivo=>"../src/origen.mem") port map (
     clk_w=>clk,clk_r=>clk,
     dir_w=>dir(9 downto 2),
     dir_r=>dir(9 downto 2),
